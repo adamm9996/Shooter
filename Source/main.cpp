@@ -15,7 +15,7 @@
 
 void debugShaders(GLint, GLint);
 
-bool btnW = false, btnA = false, btnS = false, btnD = false;
+bool keyW = false, keyA = false, keyS = false, keyD = false, keySPACE = false, keyLSHIFT = false;
 const GLchar* vertexShaderSource =
 "#version 130\n"
 "in vec3 position;"
@@ -73,7 +73,8 @@ int main()
     SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    SDL_Window* window = SDL_CreateWindow("Hey young world", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
+    SDL_Window* window = SDL_CreateWindow("Hey young world", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    		800, 600, SDL_WINDOW_OPENGL);
     SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
     glewExperimental = GL_TRUE;
@@ -226,7 +227,7 @@ int main()
 	glLinkProgram(shaderProgram);
 	glUseProgram(shaderProgram);
 
-	debugShaders(vertexShader, fragmentShader);
+	//debugShaders(vertexShader, fragmentShader);
 
 	GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
 	glEnableVertexAttribArray(posAttrib);
@@ -345,17 +346,23 @@ int main()
             	switch (windowEvent.key.keysym.sym)
             	{
             	case SDLK_w:
-            		btnW = true;
+            		keyW = true;
             	break;
             	case SDLK_s:
-            		btnS = true;
+            		keyS = true;
             	break;
             	case SDLK_a:
-					btnA = true;
+					keyA = true;
 				break;
             	case SDLK_d:
-					btnD = true;
+					keyD = true;
 				break;
+            	case SDLK_SPACE:
+            		keySPACE = true;
+            	break;
+            	case SDLK_LSHIFT:
+            		keyLSHIFT = true;
+            	break;
             	}
             }
 
@@ -364,40 +371,54 @@ int main()
             	switch (windowEvent.key.keysym.sym)
 				{
 				case SDLK_w:
-					btnW = false;
+					keyW = false;
 				break;
 				case SDLK_s:
-					btnS = false;
+					keyS = false;
 				break;
 				case SDLK_a:
-					btnA = false;
+					keyA = false;
 				break;
 				case SDLK_d:
-					btnD = false;
+					keyD = false;
+				break;
+				case SDLK_SPACE:
+					keySPACE = false;
+				break;
+				case SDLK_LSHIFT:
+					keyLSHIFT = false;
 				break;
 				}
             }
         }
 
-        if (btnW)
+        if (keyW)
         {
             yPos += moveSpeed * sin(viewAngleHoriz);
             xPos += moveSpeed * cos(viewAngleHoriz);
         }
-        if (btnS)
+        if (keyS)
         {
             yPos -= moveSpeed * sin(viewAngleHoriz);
             xPos -= moveSpeed * cos(viewAngleHoriz);
         }
-        if (btnA)
+        if (keyA)
         {
             yPos += strafeSpeed * sin(1.5708f + viewAngleHoriz);
             xPos += strafeSpeed * cos(1.5708f + viewAngleHoriz);
         }
-        if (btnD)
+        if (keyD)
         {
             yPos -= strafeSpeed * sin(1.5708f + viewAngleHoriz);
             xPos -= strafeSpeed * cos(1.5708f + viewAngleHoriz);
+        }
+        if (keySPACE)
+        {
+			zPos += moveSpeed;
+        }
+        if (keyLSHIFT)
+        {
+			zPos -= moveSpeed;
         }
         /*
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -458,6 +479,18 @@ int main()
 		}
 			initCursorY = currentCursorY;
         */
+        int currentCursorX, currentCursorY;
+        SDL_GetMouseState(&currentCursorX, &currentCursorY);
+
+        viewAngleHoriz += (float) (initCursorX - currentCursorX) * turnSpeed;
+		initCursorX  =  currentCursorX;
+
+		bool cursorInScreen = !((viewAngleVert > 3.0f / 2.0f && initCursorY > currentCursorY) || (viewAngleVert < -3.0f / 2.0f && initCursorY < currentCursorY));
+		if (cursorInScreen)
+		{
+			viewAngleVert += (float)(initCursorY - currentCursorY) *  turnSpeed;
+		}
+		initCursorY = currentCursorY;
 
 		xPOV = xPos + cos(viewAngleHoriz) * cos(viewAngleVert);
 		yPOV = yPos + sin(viewAngleHoriz) * cos(viewAngleVert);
@@ -489,18 +522,20 @@ int main()
 		glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 		glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 
+
+		/*
 		glm::mat4 trans;
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
 		glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 		glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36);*/
 
-		//draw hat
+		/*draw hat
 		glDrawArrays(GL_TRIANGLES, 36, 6);
 		glUniform3f(uniColor, 0.0f, 0.0f, 0.0f);
 		trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, 1.0f));
 		glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36);*/
 
 		/*draw name label
 		trans = glm::translate(trans, glm::vec3(-0.5f, 0.0f, 1.2f));
@@ -509,16 +544,16 @@ int main()
 		glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
 		glDrawArrays(GL_TRIANGLES, 36, 6);*/
 
-		//draw floor
+		/*draw floor
 		trans = glm::mat4();
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 3);
 		glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 		trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, -3.0f));
 		trans = glm::scale(trans, glm::vec3(20.0f, 20.0f, 1.0f));
 		glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36);*/
 
-		//draw gun
+		/*draw gun
 		glm::vec3 gunPos = glm::vec3(
 			xPos + 1.4f * cos(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f),
 			yPos + 1.4f * sin(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f),
@@ -532,8 +567,8 @@ int main()
 		gunTrans = glm::scale(gunTrans, 0.167f * glm::vec3(3.0f, 1.0f, 1.0f));
 		glUniformMatrix4fv(uniGunTrans, 1, GL_FALSE, glm::value_ptr(gunTrans));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		//draw bullet
+		*/
+		/*draw bullet
 		glm::mat4 bulletTrans;
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 2);
 		if (bulletMoving)
@@ -555,7 +590,8 @@ int main()
 		glUniformMatrix4fv(uniBulletTrans, 1, GL_FALSE, glm::value_ptr(bulletTrans));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		//draw grenade
+*/
+		/*draw grenade
 		glm::mat4 grenadeTrans;
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 2);
 		if (grenadeMoving)
@@ -577,7 +613,7 @@ int main()
 		grenadeTrans = glm::rotate(grenadeTrans, -viewAngleVert, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniGrenadeTrans, 1, GL_FALSE, glm::value_ptr(grenadeTrans));
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
+		*/
 	}
 
 	glDeleteProgram(shaderProgram);
