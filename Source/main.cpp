@@ -420,6 +420,25 @@ int main()
         {
 			zPos -= moveSpeed;
         }
+        if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
+		{
+			bulletMoving = true;
+			bulletXPos = xPos + 1.4f * cos(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f);
+			bulletYPos = yPos + 1.4f * sin(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f);
+			bulletZPos = zPos + 1.4f * sin(viewAngleVert - 0.4f);
+			bulletVec = viewVec;
+			std::cout << "PEW" << std::endl;
+		}
+        if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+		{
+			grenadeMoving = true;
+			grenadeXPos   = xPos + 1.4f * cos(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f);
+			grenadeYPos   = yPos + 1.4f * sin(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f);
+			grenadeZPos   = zPos + 1.4f * sin(viewAngleVert - 0.4f);
+			grenadeVec    = viewVec;
+			grenadeVertVel = 0.05 * grenadeVec.z;
+			std::cout << "BOOM" << std::endl;
+		}
         /*
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			break;
