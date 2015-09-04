@@ -1,5 +1,6 @@
 
 #define GLEW_STATIC
+#define GLSL(src) "#version 130\n" #src
 
 #include <GL/glew.h>
 
@@ -16,6 +17,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "vertices.h"
+#include "shaders.h"
 
 using std::string;
 
@@ -73,42 +75,6 @@ GLint uniView;
 GLint uniProj;
 GLint uniColor;
 GLint uniGunColor;
-
-const GLchar* vertexShaderSource =
-"#version 130\n"
-"in vec3 position;"
-"in vec3 color;"
-"in vec2 texcoord;"
-
-"out vec3 Color;"
-"out vec2 Texcoord;"
-
-"uniform mat4 model;"
-"uniform mat4 proj;"
-"uniform mat4 view;"
-"uniform vec3 overrideColor;"
-"void main()"
-"{"
-"Texcoord = texcoord;"
-"Color = overrideColor * color;"
-"gl_Position = proj * view * model * vec4(position, 1.0);"
-"}";
-
-const GLchar* fragmentShaderSource =
-"#version 130\n"
-"in vec3 Color;"
-"in vec2 Texcoord;"
-
-"out vec4 outColor;"
-
-"uniform float water;"
-"uniform sampler2D tex;"
-"void main() {"
-"vec4 texColor = texture(tex, Texcoord);"
-"outColor = vec4(Color, 1.0) * texColor;"
-"}";
-
-
 
 int main()
 {
