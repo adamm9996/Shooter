@@ -37,7 +37,7 @@ GLuint textures[4];
 SDL_Window* window;
 SDL_GLContext glContext;
 
-GLfloat xPos = -3.5f;
+GLfloat xPos = 0.0f;
 GLfloat yPos = 0.0f;
 GLfloat zPos = 0.0f;
 GLfloat bulletXPos = 0.0f;
@@ -48,7 +48,7 @@ GLfloat grenadeYPos = 0.0f;
 GLfloat grenadeZPos = 0.0f;
 GLfloat viewAngleHoriz = 0.0f;
 GLfloat viewAngleVert = 0.0f;
-GLfloat moveSpeed = 0.05f;
+GLfloat moveSpeed = 0.03f;
 GLfloat strafeSpeed = 0.01f;
 GLfloat turnSpeed = 0.001f;
 GLfloat bulletSpeed = 0.08f;
@@ -64,7 +64,7 @@ glm::vec3 viewInv = glm::vec3(viewVec.y, -viewVec.x, viewVec.z);
 glm::vec3 bulletVec = viewVec;
 glm::vec3 grenadeVec = viewVec;
 
-glm::mat4 view, proj, gunTrans;
+glm::mat4 view, proj, gunTrans, trans;
 
 GLint uniTrans;
 GLint uniGunTrans;
@@ -78,7 +78,7 @@ GLint uniGunColor;
 int main()
 {
 
-	setUpSDL(800, 600, "Hey Young World", true);
+	setUpSDL(1080, 720, "Hey Young World", false);
 	setUpGL();
 	setUpTransforms();
 
@@ -106,19 +106,20 @@ void updateDisplay()
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 
-	/*
-	glm::mat4 trans;
+
+	trans = glm::mat4();
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
+	//trans = glm::translate(trans, glm::vec3(0.0f, 2.0f, 0.0f));
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-	glDrawArrays(GL_TRIANGLES, 0, 36);*/
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
-	/*draw hat
+	//draw hat
 	glDrawArrays(GL_TRIANGLES, 36, 6);
 	glUniform3f(uniColor, 0.0f, 0.0f, 0.0f);
 	trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-	glDrawArrays(GL_TRIANGLES, 0, 36);*/
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	/*draw name label
 	trans = glm::translate(trans, glm::vec3(-0.5f, 0.0f, 1.2f));
@@ -127,21 +128,21 @@ void updateDisplay()
 	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
 	glDrawArrays(GL_TRIANGLES, 36, 6);*/
 
-	/*draw floor
+	//draw floor
 	trans = glm::mat4();
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 3);
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 	trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, -3.0f));
 	trans = glm::scale(trans, glm::vec3(20.0f, 20.0f, 1.0f));
 	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-	glDrawArrays(GL_TRIANGLES, 0, 36);*/
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
-	/*draw gun
+	//draw gun
 	glm::vec3 gunPos = glm::vec3(
 		xPos + 1.4f * cos(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f),
 		yPos + 1.4f * sin(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f),
 		zPos + 1.4f * sin(viewAngleVert  - 0.4f));
-//	glm::vec3 gunPos = glm::vec3(xPOV, yPOV, zPOV);
+	//glm::vec3 gunPos = glm::vec3(xPOV, yPOV, zPOV);
 	glm::mat4 gunTrans;
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 1);
 	gunTrans = glm::translate(gunTrans, gunPos);
@@ -150,8 +151,8 @@ void updateDisplay()
 	gunTrans = glm::scale(gunTrans, 0.167f * glm::vec3(3.0f, 1.0f, 1.0f));
 	glUniformMatrix4fv(uniGunTrans, 1, GL_FALSE, glm::value_ptr(gunTrans));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-	*/
-	/*draw bullet
+
+	//draw bullet
 	glm::mat4 bulletTrans;
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 2);
 	if (bulletMoving)
@@ -173,8 +174,8 @@ void updateDisplay()
 	glUniformMatrix4fv(uniBulletTrans, 1, GL_FALSE, glm::value_ptr(bulletTrans));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
-*/
-	/*draw grenade
+
+	//draw grenade
 	glm::mat4 grenadeTrans;
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 2);
 	if (grenadeMoving)
@@ -196,7 +197,7 @@ void updateDisplay()
 	grenadeTrans = glm::rotate(grenadeTrans, -viewAngleVert, glm::vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(uniGrenadeTrans, 1, GL_FALSE, glm::value_ptr(grenadeTrans));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-	*/
+
 
     SDL_GL_SwapWindow(window);
 	glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
@@ -256,7 +257,7 @@ void setUpGL()
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textures[0]);
-		image = SOIL_load_image("arransmile.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+		image = SOIL_load_image("blackcat.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		SOIL_free_image_data(image);
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
@@ -268,7 +269,7 @@ void setUpGL()
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textures[1]);
-		image = SOIL_load_image("arranbadass.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+		image = SOIL_load_image("blackcat.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		SOIL_free_image_data(image);
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 1);
@@ -280,7 +281,7 @@ void setUpGL()
 
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, textures[2]);
-		image = SOIL_load_image("arransad.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+		image = SOIL_load_image("blackcat.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		SOIL_free_image_data(image);
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 2);
@@ -292,7 +293,7 @@ void setUpGL()
 
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, textures[3]);
-		image = SOIL_load_image("arransad.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+		image = SOIL_load_image("blackcat.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		SOIL_free_image_data(image);
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 3);
