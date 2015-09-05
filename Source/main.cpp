@@ -1,6 +1,5 @@
 
 #define GLEW_STATIC
-#define GLSL(src) "#version 130\n" #src
 
 #include <GL/glew.h>
 
