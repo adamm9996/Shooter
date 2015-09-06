@@ -1,5 +1,5 @@
 # Shooter
-A (work-in-progress) first person shooter in C++, using OpenGL, SDL2, & SOIL.
+A (work-in-progress) first person shooter in C++, using OpenGL, GLEW, SDL2, glm, & SOIL.
 
 #Controls
 WASD movement
