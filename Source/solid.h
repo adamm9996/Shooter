@@ -11,17 +11,19 @@
 class Solid
 {
 public:
-	Solid(int, int, int, int, int, int);
+	Solid(float, float, float, float, float, float, float, float, float);
 	virtual ~Solid();
-	int getDepth() const	{return depth;}
-	int getHeight() const	{return height;}
-	int getWidth() const	{return width;}
-	int getX() const		{return x;}
-	int getY() const		{return y;}
-	int getZ() const		{return z;}
+	void draw();
+
+	float getDepth() const	{return depth;}
+	float getHeight() const	{return height;}
+	float getWidth() const	{return width;}
+	float getX() const		{return x;}
+	float getY() const		{return y;}
+	float getZ() const		{return z;}
 
 private:
-	int x, y, z, width, height, depth;
+	float x, y, z, width, height, depth, pitch, yaw, roll;
 };
 
 #endif /* SOLID_H_ */

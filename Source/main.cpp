@@ -17,6 +17,7 @@
 
 #include "vertices.h"
 #include "shaders.h"
+#include "solid.h"
 
 using std::string;
 
@@ -102,6 +103,19 @@ int main()
 	return 0;
 }
 
+void Solid::draw()
+{
+	trans = glm::mat4();
+	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
+	glUniform3f(uniColor, 0.0f, 0.0f, 0.0f);
+	trans = glm::rotate(trans, this->pitch, glm::vec3(0.0f, 0.0f, 1.0f));
+	trans = glm::rotate(trans, this->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+	trans = glm::rotate(trans, this->roll, glm::vec3(1.0f, 0.0f, 0.0f));
+	trans = glm::translate(trans, glm::vec3(this->x, this->y, this->z));
+	trans = glm::scale(trans, glm::vec3(this->width, this->depth, this->height));
+	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+}
 
 void updateDisplay()
 {
@@ -113,6 +127,9 @@ void updateDisplay()
 		);
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
+
+	Solid s1(0, 2, 0, 2, 0.5, 1, 45.0f, 45.0f, 45.0f);
+	s1.draw();
 
 	trans = glm::mat4();
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
@@ -206,9 +223,6 @@ void setUpGL()
 {
 		glewExperimental = GL_TRUE;
 		glewInit();
-
-		//glOrtho(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 50.0f);
-		//gluPerspective(90.0, 1.5, 0.5, 20.0);
 
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
@@ -366,8 +380,6 @@ void updateGame()
 
 	int currentCursorX, currentCursorY;
 	SDL_GetMouseState(&currentCursorX, &currentCursorY);
-
-	std::cout << "X " << currentCursorX << " " << initCursorX << " Y " << currentCursorY << " " << initCursorY << std::endl;
 
 	viewAngleHoriz += (float) (initCursorX - currentCursorX) * turnSpeed;
 
