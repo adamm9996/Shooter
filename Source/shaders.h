@@ -39,7 +39,6 @@ const GLchar* fragmentShaderSource = GLSL
 
 	out vec4 outColor;
 
-	uniform float water;
 	uniform sampler2D tex;
 
 	void main()

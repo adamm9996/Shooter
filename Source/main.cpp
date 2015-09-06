@@ -36,6 +36,7 @@ GLuint vbo, vao, ebo, vertexShader, fragmentShader, shaderProgram, posAttrib, co
 GLuint textures[4];
 SDL_Window* window;
 SDL_GLContext glContext;
+const int FPS = 60, FRAME_LEN = 1000 / 60;
 
 GLfloat xPos = 0.0f;
 GLfloat yPos = 0.0f;
@@ -66,6 +67,8 @@ glm::vec3 grenadeVec = viewVec;
 
 glm::mat4 view, proj, gunTrans, trans;
 
+std::chrono::system_clock::time_point frameStart;
+
 GLint uniTrans;
 GLint uniGunTrans;
 GLint uniBulletTrans;
@@ -84,9 +87,13 @@ int main()
 
 	while (running)
 	{
+		frameStart = std::chrono::system_clock::now();
+
 		takeInput();
 		updateGame();
 		updateDisplay();
+
+		std::this_thread::sleep_until(frameStart + std::chrono::milliseconds(FRAME_LEN));
 	}
 
 	destroyDisplay();
@@ -98,7 +105,7 @@ int main()
 void updateDisplay()
 {
 	//set camera
-	glm::mat4 view = glm::lookAt(
+	view = glm::lookAt(
 		glm::vec3(xPos, yPos, zPos),
 		glm::vec3(xPOV, yPOV, zPOV),
 		glm::vec3(0.0f, 0.0f, 1.0f)
@@ -106,10 +113,8 @@ void updateDisplay()
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 
-
 	trans = glm::mat4();
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
-	//trans = glm::translate(trans, glm::vec3(0.0f, 2.0f, 0.0f));
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -120,13 +125,6 @@ void updateDisplay()
 	trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	/*draw name label
-	trans = glm::translate(trans, glm::vec3(-0.5f, 0.0f, 1.2f));
-	trans = glm::scale(trans, glm::vec3(1.0f, 1.0f, 0.2f));
-	trans = glm::rotate(trans, 3.14f / 2.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-	glDrawArrays(GL_TRIANGLES, 36, 6);*/
 
 	//draw floor
 	trans = glm::mat4();
@@ -142,7 +140,6 @@ void updateDisplay()
 		xPos + 1.4f * cos(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f),
 		yPos + 1.4f * sin(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f),
 		zPos + 1.4f * sin(viewAngleVert  - 0.4f));
-	//glm::vec3 gunPos = glm::vec3(xPOV, yPOV, zPOV);
 	glm::mat4 gunTrans;
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 1);
 	gunTrans = glm::translate(gunTrans, gunPos);
@@ -208,6 +205,9 @@ void setUpGL()
 {
 		glewExperimental = GL_TRUE;
 		glewInit();
+
+		//glOrtho(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 50.0f);
+		//gluPerspective(90.0, 1.5, 0.5, 20.0);
 
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
@@ -405,11 +405,11 @@ void takeInput()
           		keyS = true;
           	break;
           	case SDLK_a:
-					keyA = true;
-				break;
+				keyA = true;
+			break;
           	case SDLK_d:
-					keyD = true;
-				break;
+				keyD = true;
+			break;
           	case SDLK_SPACE:
           		keySPACE = true;
           	break;
@@ -451,11 +451,10 @@ void setUpTransforms()
 	proj = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 1.0f, 10.0f);
 
 	view = glm::lookAt(
-		glm::vec3(0.0f, 2.5f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(xPos, yPos, zPos),
+		glm::vec3(xPOV, yPOV, zPOV),
 		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
-
+		);
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
 	bulletMoving = false;
