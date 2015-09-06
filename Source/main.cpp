@@ -128,8 +128,9 @@ void updateDisplay()
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 
-	Solid s1(0, 2, 0, 2, 0.5, 1, 45.0f, 45.0f, 45.0f);
+	Solid s1(0, 2, 0, 2, 0.5, 1, 45.0f, 45.0f, 45.0f), s2(2, 3, 4, 0.1, 4.5, 7, 75.0f, 4.0f, 265.0f);
 	s1.draw();
+	s2.draw();
 
 	trans = glm::mat4();
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);

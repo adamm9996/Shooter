@@ -7,6 +7,19 @@
 
 #include "solid.h"
 
+Solid::Solid()
+{
+	this->x = 0.0f;
+	this->y = 0.0f;
+	this->z = 0.0f;
+	this->width = 1.0f;
+	this->height = 1.0f;
+	this->depth = 1.0f;
+	this->pitch = 0.0f;
+	this->yaw = 0.0f;
+	this->roll = 0.0f;
+}
+
 Solid::Solid(float x, float y, float z, float width, float depth, float height, float pitch, float yaw, float roll)
 {
 	this->x = x;

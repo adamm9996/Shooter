@@ -11,6 +11,7 @@
 class Solid
 {
 public:
+	Solid();
 	Solid(float, float, float, float, float, float, float, float, float);
 	virtual ~Solid();
 	void draw();
