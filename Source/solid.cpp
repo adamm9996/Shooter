@@ -33,6 +33,22 @@ Solid::Solid(float x, float y, float z, float width, float depth, float height, 
 	this->roll = roll;
 }
 
+bool Solid::collides(float x, float y, float z)
+{
+	if (this->pitch == 0.0f && this->yaw == 0.0f && this->roll == 0.0f)
+	{
+		//if Solid is not rotated, use AABB testing
+		if(x > this->x - width / 2  && x < this->x + width / 2 &&
+		y > this->y - height / 2 && y < this->y + height / 2 &&
+	    z > this->z - depth / 2 && z < this->z + depth / 2)
+	    {
+	        return true;
+	    }
+		return false;
+	}
+	return false;
+}
+
 Solid::~Solid()
 {
 }

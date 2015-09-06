@@ -40,6 +40,8 @@ SDL_GLContext glContext;
 const int FPS = 60, FRAME_LEN = 1000 / 60;
 const int WIDTH = 1080, HEIGHT = 720;
 
+Solid s1(0, 2, 3, 20, 2, 2, 0.0f, 0.0f, 0.0f);
+
 GLfloat xPos = 0.0f;
 GLfloat yPos = 0.0f;
 GLfloat zPos = 0.0f;
@@ -112,7 +114,7 @@ void Solid::draw()
 	trans = glm::rotate(trans, this->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
 	trans = glm::rotate(trans, this->roll, glm::vec3(1.0f, 0.0f, 0.0f));
 	trans = glm::translate(trans, glm::vec3(this->x, this->y, this->z));
-	trans = glm::scale(trans, glm::vec3(this->width, this->depth, this->height));
+	trans = glm::scale(trans, glm::vec3(this->width, this->height, this->depth));
 	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
@@ -128,9 +130,7 @@ void updateDisplay()
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 
-	Solid s1(0, 2, 0, 2, 0.5, 1, 45.0f, 45.0f, 45.0f), s2(2, 3, 4, 0.1, 4.5, 7, 75.0f, 4.0f, 265.0f);
 	s1.draw();
-	s2.draw();
 
 	trans = glm::mat4();
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
@@ -402,6 +402,8 @@ void updateGame()
 	SDL_WarpMouseInWindow(window, WIDTH / 2, HEIGHT / 2);
 	initCursorX = WIDTH / 2;
 	initCursorY = HEIGHT / 2;
+
+	std::cout << s1.collides(xPos, yPos, zPos) << std::endl;
 }
 
 void takeInput()

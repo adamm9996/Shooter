@@ -15,7 +15,7 @@ public:
 	Solid(float, float, float, float, float, float, float, float, float);
 	virtual ~Solid();
 	void draw();
-
+	bool collides(float, float, float);
 	float getDepth() const	{return depth;}
 	float getHeight() const	{return height;}
 	float getWidth() const	{return width;}
