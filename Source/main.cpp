@@ -143,8 +143,8 @@ void updateDisplay()
 	glm::mat4 gunTrans;
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 1);
 	gunTrans = glm::translate(gunTrans, gunPos);
-	gunTrans = glm::rotate(gunTrans, viewAngleHoriz, glm::vec3(0.0f, 0.0f, 1.0f));
-	gunTrans = glm::rotate(gunTrans, -viewAngleVert, glm::vec3(0.0f, 1.0f, 0.0f));
+	gunTrans = glm::rotate(gunTrans, glm::degrees(viewAngleHoriz), glm::vec3(0.0f, 0.0f, 1.0f));
+	gunTrans = glm::rotate(gunTrans, -glm::degrees(viewAngleVert), glm::vec3(0.0f, 1.0f, 0.0f));
 	gunTrans = glm::scale(gunTrans, 0.167f * glm::vec3(3.0f, 1.0f, 1.0f));
 	glUniformMatrix4fv(uniGunTrans, 1, GL_FALSE, glm::value_ptr(gunTrans));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
