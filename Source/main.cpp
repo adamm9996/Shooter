@@ -52,12 +52,12 @@ GLfloat viewAngleVert = 0.0f;
 GLfloat moveSpeed = 0.05f;
 GLfloat strafeSpeed = 0.05f;
 GLfloat turnSpeed = 0.002f;
-GLfloat bulletSpeed = 0.32f;
+GLfloat bulletSpeed = 0.5f;
 GLfloat grenadeSpeed = 0.12f;
 GLfloat xPOV = xPos + cos(viewAngleHoriz);
 GLfloat yPOV = yPos + sin(viewAngleHoriz);
 GLfloat zPOV = zPos + sin(viewAngleVert);
-GLfloat gravityAcc = -0.0001f;
+GLfloat gravityAcc = -0.0003f;
 GLfloat grenadeVertVel = 0.0f;
 
 glm::vec3 viewVec = glm::vec3(xPOV - xPos, yPOV - yPos, zPOV - zPos);
@@ -197,7 +197,7 @@ void updateDisplay()
 
 
     SDL_GL_SwapWindow(window);
-	glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -257,7 +257,7 @@ void setUpGL()
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textures[0]);
-		image = SOIL_load_image("blackcat.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+		image = SOIL_load_image("blackcat.png", &width, &height, 0, SOIL_LOAD_RGB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		SOIL_free_image_data(image);
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
@@ -269,7 +269,7 @@ void setUpGL()
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textures[1]);
-		image = SOIL_load_image("blackcat.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+		image = SOIL_load_image("blackcat.png", &width, &height, 0, SOIL_LOAD_RGB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		SOIL_free_image_data(image);
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 1);
@@ -281,7 +281,7 @@ void setUpGL()
 
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, textures[2]);
-		image = SOIL_load_image("blackcat.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+		image = SOIL_load_image("blackcat.png", &width, &height, 0, SOIL_LOAD_RGB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		SOIL_free_image_data(image);
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 2);
@@ -293,7 +293,7 @@ void setUpGL()
 
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, textures[3]);
-		image = SOIL_load_image("blackcat.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+		image = SOIL_load_image("blackcat.png", &width, &height, 0, SOIL_LOAD_RGB);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		SOIL_free_image_data(image);
 		glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 3);
