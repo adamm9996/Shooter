@@ -387,7 +387,7 @@ void updateGame()
 void takeInput()
 {
     SDL_Event windowEvent;
-      if (SDL_PollEvent(&windowEvent))
+      while (SDL_PollEvent(&windowEvent))
       {
           if (windowEvent.type == SDL_QUIT)
         	  running = false;
@@ -479,6 +479,8 @@ void setUpSDL(int width, int height, string title, bool fullScreen)
     GLuint flags = fullScreen ? (SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN) : SDL_WINDOW_OPENGL;
     window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
     glContext = SDL_GL_CreateContext(window);
+
+     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 void destroyDisplay()
