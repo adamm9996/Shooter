@@ -37,6 +37,7 @@ GLuint textures[4];
 SDL_Window* window;
 SDL_GLContext glContext;
 const int FPS = 60, FRAME_LEN = 1000 / 60;
+const int WIDTH = 1080, HEIGHT = 720;
 
 GLfloat xPos = 0.0f;
 GLfloat yPos = 0.0f;
@@ -366,15 +367,17 @@ void updateGame()
 	int currentCursorX, currentCursorY;
 	SDL_GetMouseState(&currentCursorX, &currentCursorY);
 
-	viewAngleHoriz += (float) (initCursorX - currentCursorX) * turnSpeed;
-	initCursorX  =  currentCursorX;
+	std::cout << "X " << currentCursorX << " " << initCursorX << " Y " << currentCursorY << " " << initCursorY << std::endl;
 
-	bool cursorInScreen = !((viewAngleVert > 3.0f / 2.0f && initCursorY > currentCursorY) || (viewAngleVert < -3.0f / 2.0f && initCursorY < currentCursorY));
+	viewAngleHoriz += (float) (initCursorX - currentCursorX) * turnSpeed;
+
+	float newVertAngle = viewAngleVert + (float)(initCursorY - currentCursorY) *  turnSpeed;
+
+	bool cursorInScreen = !((newVertAngle > 3.14f / 2.0f && initCursorY > currentCursorY) || (newVertAngle < -3.14f / 2.0f && initCursorY < currentCursorY));
 	if (cursorInScreen)
 	{
-		viewAngleVert += (float)(initCursorY - currentCursorY) *  turnSpeed;
+		viewAngleVert = newVertAngle;
 	}
-	initCursorY = currentCursorY;
 
 	xPOV = xPos + cos(viewAngleHoriz) * cos(viewAngleVert);
 	yPOV = yPos + sin(viewAngleHoriz) * cos(viewAngleVert);
@@ -382,6 +385,10 @@ void updateGame()
 
 	viewVec = glm::vec3(xPOV - xPos, yPOV - yPos, zPOV - zPos);
 	viewInv = glm::vec3(viewVec.y, -viewVec.x, viewVec.z);
+
+	SDL_WarpMouseInWindow(window, WIDTH / 2, HEIGHT / 2);
+	initCursorX = WIDTH / 2;
+	initCursorY = HEIGHT / 2;
 }
 
 void takeInput()
@@ -448,7 +455,7 @@ void takeInput()
 
 void setUpTransforms()
 {
-	proj = glm::perspective(45.0f, 1.5f, 1.0f, 10.0f);
+	proj = glm::perspective(45.0f, (float) WIDTH / HEIGHT, 1.0f, 10.0f);
 
 	view = glm::lookAt(
 		glm::vec3(xPos, yPos, zPos),
@@ -459,8 +466,8 @@ void setUpTransforms()
 
 	bulletMoving = false;
 	grenadeMoving = false;
-	initCursorX = 0.0;
-	initCursorY = 0.0;
+	initCursorX = WIDTH / 2;
+	initCursorY = HEIGHT / 2;
 	gunTrans = glm::scale(gunTrans, 0.167f * glm::vec3(3.0f, 1.0f, 1.0f));
 
 }
@@ -480,7 +487,7 @@ void setUpSDL(int width, int height, string title, bool fullScreen)
     window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
     glContext = SDL_GL_CreateContext(window);
 
-     SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_ShowCursor(SDL_FALSE);
 }
 
 void destroyDisplay()
