@@ -4,7 +4,7 @@ A (work-in-progress) first person shooter in C++, using OpenGL, GLEW, SDL2, glm,
 #Controls
 WASD movement
 
-SPACE  up
+SPACE  jump
 
 LSHIFT down
 

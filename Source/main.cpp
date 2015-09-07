@@ -31,6 +31,7 @@ void updateDisplay();
 void destroyDisplay();
 
 bool keyW = false, keyA = false, keyS = false, keyD = false, keySPACE = false, keyLSHIFT = false, running = true;
+bool jumping = false;
 bool bulletMoving, grenadeMoving;
 double initCursorX, initCursorY;
 GLuint vbo, vao, ebo, vertexShader, fragmentShader, shaderProgram, posAttrib, colAttrib, texAttrib;
@@ -40,11 +41,11 @@ SDL_GLContext glContext;
 const int FPS = 60, FRAME_LEN = 1000 / 60;
 const int WIDTH = 1080, HEIGHT = 720;
 
-Solid s1(0, 2, 3, 20, 2, 2, 0.0f, 0.0f, 0.0f);
-
 GLfloat xPos = 0.0f;
 GLfloat yPos = 0.0f;
 GLfloat zPos = 0.0f;
+GLfloat playerHeight = 0.4f;
+GLfloat fallSpeed = 0.05f;
 GLfloat bulletXPos = 0.0f;
 GLfloat bulletYPos = 0.0f;
 GLfloat bulletZPos = 0.0f;
@@ -57,11 +58,11 @@ GLfloat moveSpeed = 0.05f;
 GLfloat strafeSpeed = 0.05f;
 GLfloat turnSpeed = 0.002f;
 GLfloat bulletSpeed = 0.5f;
-GLfloat grenadeSpeed = 0.12f;
+GLfloat grenadeSpeed = 0.25f;
 GLfloat xPOV = xPos + cos(viewAngleHoriz);
 GLfloat yPOV = yPos + sin(viewAngleHoriz);
 GLfloat zPOV = zPos + sin(viewAngleVert);
-GLfloat gravityAcc = -0.0003f;
+GLfloat gravityAcc = -0.003f;
 GLfloat grenadeVertVel = 0.0f;
 
 glm::vec3 viewVec = glm::vec3(xPOV - xPos, yPOV - yPos, zPOV - zPos);
@@ -82,10 +83,18 @@ GLint uniProj;
 GLint uniColor;
 GLint uniGunColor;
 
+Solid solids[] =
+{
+		Solid(0, 2, 3, 20, 2, 2, 0.0f, 0.0f, 0.0f),
+		Solid(1, 10, 3, 5, 1, 0.5, 0.0f, 0.0f, 0.0f),
+		Solid(0, -1, 4, 1, 1, 1, 0.0f, 0.0f, 0.0f),
+		Solid(0, 0, -1, 20, 1, 20, 0.0f, 0.0f, 0.0f),
+};
+
 int main()
 {
 
-	setUpSDL(1080, 720, "Hey Young World", false);
+	setUpSDL(WIDTH, HEIGHT, "Hey Young World", false);
 	setUpGL();
 	setUpTransforms();
 
@@ -109,7 +118,7 @@ void Solid::draw()
 {
 	trans = glm::mat4();
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
-	glUniform3f(uniColor, 0.0f, 0.0f, 0.0f);
+	glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
 	trans = glm::rotate(trans, this->pitch, glm::vec3(0.0f, 0.0f, 1.0f));
 	trans = glm::rotate(trans, this->yaw, glm::vec3(0.0f, 1.0f, 0.0f));
 	trans = glm::rotate(trans, this->roll, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -130,8 +139,10 @@ void updateDisplay()
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 
-	s1.draw();
-
+	for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
+	{
+		solids[t].draw();
+	}
 	trans = glm::mat4();
 	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
@@ -331,35 +342,105 @@ void setUpGL()
 		glEnable(GL_DEPTH_TEST);
 }
 
+
 void updateGame()
 {
 	if (keyW)
 	{
-		yPos += moveSpeed * sin(viewAngleHoriz);
-		xPos += moveSpeed * cos(viewAngleHoriz);
+		float newX = xPos + moveSpeed * cos(viewAngleHoriz);
+		float newY = yPos + moveSpeed * sin(viewAngleHoriz);
+		bool clear = true;
+		for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
+		{
+			if (solids[t].collides(newX, newY, zPos))
+			{
+				clear = false;
+				break;
+			}
+		}
+		if (clear)
+		{
+			xPos = newX;
+			yPos = newY;
+		}
 	}
 	if (keyS)
 	{
-		yPos -= moveSpeed * sin(viewAngleHoriz);
-		xPos -= moveSpeed * cos(viewAngleHoriz);
+		float newX = xPos - moveSpeed * cos(viewAngleHoriz);
+		float newY = yPos - moveSpeed * sin(viewAngleHoriz);
+		bool clear = true;
+		for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
+		{
+			if (solids[t].collides(newX, newY, zPos))
+			{
+				clear = false;
+				break;
+			}
+		}
+		if (clear)
+		{
+			xPos = newX;
+			yPos = newY;
+		}
 	}
 	if (keyA)
 	{
-		yPos += strafeSpeed * sin(1.5708f + viewAngleHoriz);
-		xPos += strafeSpeed * cos(1.5708f + viewAngleHoriz);
+		float newY = yPos + strafeSpeed * sin(1.5708f + viewAngleHoriz);
+		float newX = xPos + strafeSpeed * cos(1.5708f + viewAngleHoriz);
+		bool clear = true;
+		for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
+		{
+			if (solids[t].collides(newX, newY, zPos))
+			{
+				clear = false;
+				break;
+			}
+		}
+		if (clear)
+		{
+			xPos = newX;
+			yPos = newY;
+		}
 	}
 	if (keyD)
 	{
-		yPos -= strafeSpeed * sin(1.5708f + viewAngleHoriz);
-		xPos -= strafeSpeed * cos(1.5708f + viewAngleHoriz);
+		float newY = yPos - strafeSpeed * sin(1.5708f + viewAngleHoriz);
+		float newX = xPos - strafeSpeed * cos(1.5708f + viewAngleHoriz);
+		bool clear = true;
+		for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
+		{
+			if (solids[t].collides(newX, newY, zPos))
+			{
+				clear = false;
+				break;
+			}
+		}
+		if (clear)
+		{
+			xPos = newX;
+			yPos = newY;
+		}
 	}
 	if (keySPACE)
 	{
-		zPos += moveSpeed;
+		fallSpeed = -0.2;
 	}
 	if (keyLSHIFT)
 	{
-		zPos -= moveSpeed;
+		float newZ = zPos - moveSpeed;
+		bool clear = true;
+		for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
+		{
+			if (solids[t].collides(xPos, yPos, newZ))
+			{
+				clear = false;
+				break;
+			}
+		}
+		if (clear)
+		{
+			zPos = newZ;
+		}
 	}
 	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
@@ -377,6 +458,21 @@ void updateGame()
 		grenadeZPos   = zPos + 1.4f * sin(viewAngleVert - 0.4f);
 		grenadeVec    = viewVec;
 		grenadeVertVel = 0.05 * grenadeVec.z;
+	}
+
+	bool clear = true;
+	for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
+	{
+		if (solids[t].collides(xPos, yPos, zPos - fallSpeed - gravityAcc - playerHeight))
+		{
+			clear = false;
+			break;
+		}
+	}
+	if (clear)
+	{
+		zPos -= fallSpeed;
+		fallSpeed -= gravityAcc;
 	}
 
 	int currentCursorX, currentCursorY;
@@ -403,7 +499,6 @@ void updateGame()
 	initCursorX = WIDTH / 2;
 	initCursorY = HEIGHT / 2;
 
-	std::cout << s1.collides(xPos, yPos, zPos) << std::endl;
 }
 
 void takeInput()
