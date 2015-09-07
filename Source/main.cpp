@@ -470,7 +470,7 @@ void takeInput()
 
 void setUpTransforms()
 {
-	proj = glm::perspective(45.0f, (float) WIDTH / HEIGHT, 1.0f, 10.0f);
+	proj = glm::perspective(45.0f, (float) WIDTH / HEIGHT, 1.0f, 100.0f);
 
 	view = glm::lookAt(
 		glm::vec3(xPos, yPos, zPos),
