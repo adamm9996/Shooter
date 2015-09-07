@@ -43,8 +43,9 @@ const int WIDTH = 1080, HEIGHT = 720;
 
 GLfloat xPos = 0.0f;
 GLfloat yPos = 0.0f;
-GLfloat zPos = 0.0f;
-GLfloat playerHeight = 0.4f;
+GLfloat zPos = 10.0f;
+GLfloat playerHeight = 1.0f;
+GLfloat hatHeight = 0.3f;
 GLfloat fallSpeed = 0.05f;
 GLfloat bulletXPos = 0.0f;
 GLfloat bulletYPos = 0.0f;
@@ -54,8 +55,8 @@ GLfloat grenadeYPos = 0.0f;
 GLfloat grenadeZPos = 0.0f;
 GLfloat viewAngleHoriz = 0.0f;
 GLfloat viewAngleVert = 0.0f;
-GLfloat moveSpeed = 0.05f;
-GLfloat strafeSpeed = 0.05f;
+GLfloat moveSpeed = 0.08f;
+GLfloat strafeSpeed = 0.08f;
 GLfloat turnSpeed = 0.002f;
 GLfloat bulletSpeed = 0.5f;
 GLfloat grenadeSpeed = 0.25f;
@@ -463,10 +464,16 @@ void updateGame()
 	bool clear = true;
 	for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
 	{
-		if (solids[t].collides(xPos, yPos, zPos - fallSpeed - gravityAcc - playerHeight))
+		bool downTest = solids[t].collides(xPos, yPos, zPos - fallSpeed - gravityAcc - playerHeight);
+		bool upTest = solids[t].collides(xPos, yPos, zPos - fallSpeed - gravityAcc + playerHeight);
+		if (fallSpeed >= 0 && downTest)
 		{
 			clear = false;
 			break;
+		}
+		if (fallSpeed < 0 && upTest)
+		{
+			fallSpeed = 0;
 		}
 	}
 	if (clear)
@@ -565,7 +572,7 @@ void takeInput()
 
 void setUpTransforms()
 {
-	proj = glm::perspective(45.0f, (float) WIDTH / HEIGHT, 1.0f, 100.0f);
+	proj = glm::perspective(45.0f, (float) WIDTH / HEIGHT, 0.2f, 100.0f);
 
 	view = glm::lookAt(
 		glm::vec3(xPos, yPos, zPos),
