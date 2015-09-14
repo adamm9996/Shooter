@@ -39,13 +39,14 @@ GLuint textures[4];
 SDL_Window* window;
 SDL_GLContext glContext;
 const int FPS = 60, FRAME_LEN = 1000 / 60;
-const int WIDTH = 1080, HEIGHT = 720;
+const int WIDTH = 1080, HEIGHT = 720, BLOCK_ARRAY_SIZE = 4;
+const float BLOCK_SIZE = 8.5f;
 
 GLfloat xPos = 0.0f;
 GLfloat yPos = 0.0f;
 GLfloat zPos = 10.0f;
 GLfloat playerHeight = 1.0f;
-GLfloat hatHeight = 0.3f;
+GLfloat hatHeight = 0.1f;
 GLfloat fallSpeed = 0.05f;
 GLfloat bulletXPos = 0.0f;
 GLfloat bulletYPos = 0.0f;
@@ -75,6 +76,8 @@ glm::mat4 view, proj, gunTrans, trans;
 
 std::chrono::system_clock::time_point frameStart;
 
+Solid blocks[BLOCK_ARRAY_SIZE][BLOCK_ARRAY_SIZE][BLOCK_ARRAY_SIZE];
+
 GLint uniTrans;
 GLint uniGunTrans;
 GLint uniBulletTrans;
@@ -86,10 +89,11 @@ GLint uniGunColor;
 
 Solid solids[] =
 {
-		Solid(0, 2, 3, 20, 2, 2, 0.0f, 0.0f, 0.0f),
-		Solid(1, 10, 3, 5, 1, 0.5, 0.0f, 0.0f, 0.0f),
-		Solid(0, -1, 4, 1, 1, 1, 0.0f, 0.0f, 0.0f),
-		Solid(0, 0, -1, 20, 1, 20, 0.0f, 0.0f, 0.0f),
+		Solid(0,  2,  3, 20, 2, 2, 0.0f, 0.0f, 0.0f),
+		Solid(5, 10,  3, 5, 1, 0.5, 0.0f, 0.0f, 0.0f),
+		Solid(12, -1,  4, 1, 1, 1, 0.0f, 0.0f, 0.0f),
+		Solid(4,  0, 3, 20, 1, 20, 0.0f, 0.0f, 0.0f),
+		Solid(20,  0,  2, 5, 5, 5, 0.0f, 0.0f, 0.0f),
 };
 
 int main()
@@ -140,33 +144,19 @@ void updateDisplay()
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 
-	for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
+	for (int x = 0; x < BLOCK_ARRAY_SIZE; x++)
 	{
-		solids[t].draw();
+		for (int y = 0; y < BLOCK_ARRAY_SIZE; y++)
+		{
+			for (int z = 0; z < BLOCK_ARRAY_SIZE; z++)
+			{
+				blocks[x][y][z].draw();
+			}
+		}
 	}
-	trans = glm::mat4();
-	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 0);
-	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
-	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	//draw hat
-	glDrawArrays(GL_TRIANGLES, 36, 6);
-	glUniform3f(uniColor, 0.0f, 0.0f, 0.0f);
-	trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, 1.0f));
-	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	//draw floor
-	trans = glm::mat4();
-	glUniform1i(glGetUniformLocation(shaderProgram, "tex"), 3);
-	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
-	trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, -3.0f));
-	trans = glm::scale(trans, glm::vec3(20.0f, 20.0f, 1.0f));
-	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	//draw gun
+	glUniform3f(uniColor, 1.0f, 1.0f, 1.0f);
 	glm::vec3 gunPos = glm::vec3(
 		xPos + 1.4f * cos(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f),
 		yPos + 1.4f * sin(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f),
@@ -353,7 +343,7 @@ void updateGame()
 		bool clear = true;
 		for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
 		{
-			if (solids[t].collides(newX, newY, zPos))
+			if (solids[t].collides(newX, newY, zPos - playerHeight) || solids[t].collides(newX, newY, zPos + hatHeight))
 			{
 				clear = false;
 				break;
@@ -372,7 +362,7 @@ void updateGame()
 		bool clear = true;
 		for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
 		{
-			if (solids[t].collides(newX, newY, zPos))
+			if (solids[t].collides(newX, newY, zPos - playerHeight) || solids[t].collides(newX, newY, zPos + hatHeight))
 			{
 				clear = false;
 				break;
@@ -391,7 +381,7 @@ void updateGame()
 		bool clear = true;
 		for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
 		{
-			if (solids[t].collides(newX, newY, zPos))
+			if (solids[t].collides(newX, newY, zPos - playerHeight) || solids[t].collides(newX, newY, zPos + hatHeight))
 			{
 				clear = false;
 				break;
@@ -410,7 +400,7 @@ void updateGame()
 		bool clear = true;
 		for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
 		{
-			if (solids[t].collides(newX, newY, zPos))
+			if (solids[t].collides(newX, newY, zPos - playerHeight) || solids[t].collides(newX, newY, zPos + hatHeight))
 			{
 				clear = false;
 				break;
@@ -462,18 +452,24 @@ void updateGame()
 	}
 
 	bool clear = true;
-	for (int t = 0; t < (sizeof(solids) / sizeof(solids[0])); t++)
+	for (int x = 0; x < BLOCK_ARRAY_SIZE; x++)
 	{
-		bool downTest = solids[t].collides(xPos, yPos, zPos - fallSpeed - gravityAcc - playerHeight);
-		bool upTest = solids[t].collides(xPos, yPos, zPos - fallSpeed - gravityAcc + playerHeight);
-		if (fallSpeed >= 0 && downTest)
+		for (int y = 0; y < BLOCK_ARRAY_SIZE; y++)
 		{
-			clear = false;
-			break;
-		}
-		if (fallSpeed < 0 && upTest)
-		{
-			fallSpeed = 0;
+			for (int z = 0; z < BLOCK_ARRAY_SIZE; z++)
+			{
+				bool downTest = blocks[x][y][z].collides(xPos, yPos, zPos - fallSpeed - gravityAcc - playerHeight);
+				bool upTest = blocks[x][y][z].collides(xPos, yPos, zPos - fallSpeed - gravityAcc + playerHeight);
+				if (fallSpeed >= 0 && downTest)
+				{
+					clear = false;
+					break;
+				}
+				if (fallSpeed < 0 && upTest)
+				{
+					fallSpeed = 0;
+				}
+			}
 		}
 	}
 	if (clear)
@@ -572,7 +568,7 @@ void takeInput()
 
 void setUpTransforms()
 {
-	proj = glm::perspective(45.0f, (float) WIDTH / HEIGHT, 0.2f, 100.0f);
+	proj = glm::perspective(45.0f, (float) WIDTH / HEIGHT, 0.01f, 100.0f);
 
 	view = glm::lookAt(
 		glm::vec3(xPos, yPos, zPos),
@@ -586,6 +582,17 @@ void setUpTransforms()
 	initCursorX = WIDTH / 2;
 	initCursorY = HEIGHT / 2;
 	gunTrans = glm::scale(gunTrans, 0.167f * glm::vec3(3.0f, 1.0f, 1.0f));
+
+	for (int x = 0; x < BLOCK_ARRAY_SIZE; x++)
+	{
+		for (int y = 0; y < BLOCK_ARRAY_SIZE; y++)
+		{
+			for (int z = 0; z < BLOCK_ARRAY_SIZE; z++)
+			{
+				blocks[x][y][z] = Solid(x * BLOCK_SIZE, y * BLOCK_SIZE, z * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, 0.0f, 0.0f, 0.0f);
+			}
+		}
+	}
 
 }
 
