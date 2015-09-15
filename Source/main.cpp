@@ -18,6 +18,7 @@
 #include "vertices.h"
 #include "shaders.h"
 #include "solid.h"
+#include "controller.h"
 
 using std::string;
 
@@ -25,7 +26,6 @@ void debugShaders(GLint, GLint);
 void setUpSDL(int, int, string, bool);
 void setUpGL();
 void setUpTransforms();
-void takeInput();
 void updateGame();
 void updateDisplay();
 void destroyDisplay();
@@ -56,8 +56,8 @@ GLfloat grenadeYPos = 0.0f;
 GLfloat grenadeZPos = 0.0f;
 GLfloat viewAngleHoriz = 0.0f;
 GLfloat viewAngleVert = 0.0f;
-GLfloat moveSpeed = 0.08f;
-GLfloat strafeSpeed = 0.08f;
+GLfloat moveSpeed = 0.12f;
+GLfloat strafeSpeed = 0.12f;
 GLfloat turnSpeed = 0.002f;
 GLfloat bulletSpeed = 0.5f;
 GLfloat grenadeSpeed = 0.25f;
@@ -87,6 +87,8 @@ GLint uniProj;
 GLint uniColor;
 GLint uniGunColor;
 
+Controller controller;
+
 Solid solids[] =
 {
 		Solid(0,  2,  3, 20, 2, 2, 0.0f, 0.0f, 0.0f),
@@ -98,7 +100,6 @@ Solid solids[] =
 
 int main()
 {
-
 	setUpSDL(WIDTH, HEIGHT, "Hey Young World", false);
 	setUpGL();
 	setUpTransforms();
@@ -107,7 +108,7 @@ int main()
 	{
 		frameStart = std::chrono::system_clock::now();
 
-		takeInput();
+		controller.takeInput();
 		updateGame();
 		updateDisplay();
 
@@ -336,7 +337,7 @@ void setUpGL()
 
 void updateGame()
 {
-	if (keyW)
+	if (controller.pressed(SDLK_w))
 	{
 		float newX = xPos + moveSpeed * cos(viewAngleHoriz);
 		float newY = yPos + moveSpeed * sin(viewAngleHoriz);
@@ -355,7 +356,7 @@ void updateGame()
 			yPos = newY;
 		}
 	}
-	if (keyS)
+	if (controller.pressed(SDLK_s))
 	{
 		float newX = xPos - moveSpeed * cos(viewAngleHoriz);
 		float newY = yPos - moveSpeed * sin(viewAngleHoriz);
@@ -374,7 +375,7 @@ void updateGame()
 			yPos = newY;
 		}
 	}
-	if (keyA)
+	if (controller.pressed(SDLK_a))
 	{
 		float newY = yPos + strafeSpeed * sin(1.5708f + viewAngleHoriz);
 		float newX = xPos + strafeSpeed * cos(1.5708f + viewAngleHoriz);
@@ -393,7 +394,7 @@ void updateGame()
 			yPos = newY;
 		}
 	}
-	if (keyD)
+	if (controller.pressed(SDLK_d))
 	{
 		float newY = yPos - strafeSpeed * sin(1.5708f + viewAngleHoriz);
 		float newX = xPos - strafeSpeed * cos(1.5708f + viewAngleHoriz);
@@ -412,11 +413,11 @@ void updateGame()
 			yPos = newY;
 		}
 	}
-	if (keySPACE)
+	if (controller.pressed(SDLK_SPACE))
 	{
 		fallSpeed = -0.2;
 	}
-	if (keyLSHIFT)
+	if (controller.pressed(SDLK_LSHIFT))
 	{
 		float newZ = zPos - moveSpeed;
 		bool clear = true;
@@ -432,6 +433,10 @@ void updateGame()
 		{
 			zPos = newZ;
 		}
+	}
+	if (controller.quit())
+	{
+		running = false;
 	}
 	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
@@ -502,68 +507,6 @@ void updateGame()
 	initCursorX = WIDTH / 2;
 	initCursorY = HEIGHT / 2;
 
-}
-
-void takeInput()
-{
-    SDL_Event windowEvent;
-      while (SDL_PollEvent(&windowEvent))
-      {
-          if (windowEvent.type == SDL_QUIT)
-        	  running = false;
-          if (windowEvent.type == SDL_KEYDOWN)
-          {
-              if (windowEvent.key.keysym.sym == SDLK_ESCAPE)
-            	  running = false;
-
-          	switch (windowEvent.key.keysym.sym)
-          	{
-          	case SDLK_w:
-          		keyW = true;
-          	break;
-          	case SDLK_s:
-          		keyS = true;
-          	break;
-          	case SDLK_a:
-				keyA = true;
-			break;
-          	case SDLK_d:
-				keyD = true;
-			break;
-          	case SDLK_SPACE:
-          		keySPACE = true;
-          	break;
-          	case SDLK_LSHIFT:
-          		keyLSHIFT = true;
-          	break;
-          	}
-          }
-
-          if (windowEvent.type == SDL_KEYUP)
-          {
-          	switch (windowEvent.key.keysym.sym)
-				{
-				case SDLK_w:
-					keyW = false;
-				break;
-				case SDLK_s:
-					keyS = false;
-				break;
-				case SDLK_a:
-					keyA = false;
-				break;
-				case SDLK_d:
-					keyD = false;
-				break;
-				case SDLK_SPACE:
-					keySPACE = false;
-				break;
-				case SDLK_LSHIFT:
-					keyLSHIFT = false;
-				break;
-				}
-          }
-      }
 }
 
 void setUpTransforms()
