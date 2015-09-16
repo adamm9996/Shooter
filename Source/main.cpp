@@ -19,6 +19,7 @@
 #include "shaders.h"
 #include "solid.h"
 #include "controller.h"
+#include "display.h"
 
 using std::string;
 
@@ -100,7 +101,8 @@ Solid solids[] =
 
 int main()
 {
-	setUpSDL(WIDTH, HEIGHT, "Hey Young World", false);
+	//setUpSDL(WIDTH, HEIGHT, "Hey Young World", false);
+	Display display(WIDTH, HEIGHT, "Hey Young World", false);
 	setUpGL();
 	setUpTransforms();
 
@@ -115,7 +117,7 @@ int main()
 		std::this_thread::sleep_until(frameStart + std::chrono::milliseconds(FRAME_LEN));
 	}
 
-	destroyDisplay();
+	//destroyDisplay();
 
 	return 0;
 }
