@@ -28,6 +28,11 @@ bool Controller::pressed(SDL_Keycode button)
 	return keyMap[button];
 }
 
+bool Controller::mousePressed(int mouseButton)
+{
+	return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(mouseButton);
+}
+
 bool Controller::quit()
 {
 	return (quitPressed || keyMap[SDLK_ESCAPE]);
@@ -36,19 +41,19 @@ bool Controller::quit()
 void Controller::takeInput()
 {
     SDL_Event windowEvent;
-      while (SDL_PollEvent(&windowEvent))
-      {
-          if (windowEvent.type == SDL_QUIT)
-        	  quitPressed = true;
+    while (SDL_PollEvent(&windowEvent))
+	{
+		if (windowEvent.type == SDL_QUIT)
+		  quitPressed = true;
 
-          if (windowEvent.type == SDL_KEYDOWN)
-          {
-              keyMap[windowEvent.key.keysym.sym] = true;
-          }
+		if (windowEvent.type == SDL_KEYDOWN)
+		{
+		  keyMap[windowEvent.key.keysym.sym] = true;
+		}
 
-          if (windowEvent.type == SDL_KEYUP)
-          {
-              keyMap[windowEvent.key.keysym.sym] = false;
-          }
-      }
+		if (windowEvent.type == SDL_KEYUP)
+		{
+		  keyMap[windowEvent.key.keysym.sym] = false;
+		}
+	}
 }

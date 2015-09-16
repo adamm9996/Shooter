@@ -17,6 +17,7 @@ public:
 	Controller();
 	virtual ~Controller();
 	bool pressed(SDL_Keycode);
+	bool mousePressed(int);
 	void takeInput();
 	bool quit();
 private:

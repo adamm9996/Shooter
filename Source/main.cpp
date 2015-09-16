@@ -40,7 +40,7 @@ SDL_Window* window;
 SDL_GLContext glContext;
 const int FPS = 60, FRAME_LEN = 1000 / 60;
 const int WIDTH = 1080, HEIGHT = 720, BLOCK_ARRAY_SIZE = 4;
-const float BLOCK_SIZE = 8.5f;
+const float BLOCK_SIZE = 3.0f;
 
 GLfloat xPos = 0.0f;
 GLfloat yPos = 0.0f;
@@ -438,7 +438,7 @@ void updateGame()
 	{
 		running = false;
 	}
-	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT))
+	if (controller.mousePressed(SDL_BUTTON_LEFT))
 	{
 		bulletMoving = true;
 		bulletXPos = xPos + 1.4f * cos(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f);
@@ -446,7 +446,7 @@ void updateGame()
 		bulletZPos = zPos + 1.4f * sin(viewAngleVert - 0.4f);
 		bulletVec = viewVec;
 	}
-	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+	if (controller.mousePressed(SDL_BUTTON_RIGHT))
 	{
 		grenadeMoving = true;
 		grenadeXPos   = xPos + 1.4f * cos(viewAngleHoriz - 0.0f) * cos(viewAngleVert - 0.4f);
